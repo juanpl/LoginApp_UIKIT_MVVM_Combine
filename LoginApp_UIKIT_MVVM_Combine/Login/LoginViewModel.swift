@@ -6,12 +6,32 @@
 //
 
 import Foundation
+import Combine
 
 class LoginViewModel {
+    
+    @Published var email: String = ""
+    @Published var password: String = ""
+    
+    var cancellables = Set<AnyCancellable>()
+    
     let apiClient: APIClient
     
     init(apiClient: APIClient) {
         self.apiClient = apiClient
+        
+        formValidation()
+    }
+    
+    func formValidation(){
+        $email.sink{ value in
+            print("Email: \(value)")
+        }.store(in: &cancellables)
+        
+        $password.sink{ value in
+            print("Password: \(value)")
+        }.store(in: &cancellables)
+        
     }
     
     @MainActor
