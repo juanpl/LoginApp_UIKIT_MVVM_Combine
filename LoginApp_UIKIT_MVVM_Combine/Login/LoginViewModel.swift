@@ -12,6 +12,9 @@ class LoginViewModel {
     
     @Published var email: String = ""
     @Published var password: String = ""
+    @Published var isEnabled: Bool = false
+    @Published var showLoading: Bool = false
+    @Published var errorMessage: String = ""
     
     var cancellables = Set<AnyCancellable>()
     
@@ -24,24 +27,29 @@ class LoginViewModel {
     }
     
     func formValidation(){
-        $email.sink{ value in
-            print("Email: \(value)")
-        }.store(in: &cancellables)
-        
-        $password.sink{ value in
-            print("Password: \(value)")
-        }.store(in: &cancellables)
-        
+        Publishers.CombineLatest($email, $password)
+            .filter { email, password in
+                return email.count > 5 && password.count > 5
+            }.sink {value in
+                self.isEnabled = true
+            }.store(in: &cancellables)
     }
     
     @MainActor
     func userLogin(withEmail email: String, password: String){
+        
+        errorMessage = ""
+        showLoading = true
+        
         Task {
             do {
                 let userModel = try await apiClient.login(withEmail: email, password: password)
             } catch let error as BackendError {
-                print(error.localizedDescription)
+                errorMessage = error.rawValue
             }
+            
+        showLoading = false
+            
         }
     }
     

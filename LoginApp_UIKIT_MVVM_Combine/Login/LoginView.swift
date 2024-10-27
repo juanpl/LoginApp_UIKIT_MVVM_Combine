@@ -26,6 +26,7 @@ class LoginView: UIViewController {
         let textField = UITextField()
         textField.placeholder = "Add Password"
         textField.borderStyle = .roundedRect
+        textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -47,12 +48,23 @@ class LoginView: UIViewController {
         return button
     }()
     
+    private let errorLabel: UILabel = {
+        let label = UILabel()
+        label.text = ""
+        label.numberOfLines = 0
+        label.textColor = .red
+        label.font = .systemFont(ofSize: 20, weight: .regular, width: .condensed)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         createBindingViewWithViewModel()
         
-        [emailTextField, passwordTextField, loginButton].forEach(view.addSubview)
+        [emailTextField, passwordTextField, loginButton, errorLabel].forEach(view.addSubview)
         
         NSLayoutConstraint.activate([
             emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -66,7 +78,10 @@ class LoginView: UIViewController {
             passwordTextField.bottomAnchor.constraint(equalTo: loginButton.topAnchor, constant: -20),
             
             loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loginButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            loginButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            errorLabel.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20)
         ])
     }
     
@@ -84,9 +99,19 @@ class LoginView: UIViewController {
             .assign(to: \LoginViewModel.password, on: loginViewModel)
             .store(in: &cancellables)
         
+        loginViewModel.$isEnabled
+            .assign(to: \.isEnabled, on: loginButton)
+            .store(in: &cancellables)
+        
+        loginViewModel.$showLoading
+            .assign(to: \.configuration!.showsActivityIndicator, on: loginButton)
+            .store(in: &cancellables)
+        
+        loginViewModel.$errorMessage
+            .assign(to: \UILabel.text!, on: errorLabel)
+            .store(in: &cancellables)
+
     }
-
-
 }
 
 extension UITextField {
