@@ -26,7 +26,7 @@ func simulateBackendLogic(email: String, password: String) throws -> User {
         throw BackendError.invalidEmail
     }
     
-    guard password == "12345" else {
+    guard password == "1234567" else {
         print("The password isn't correct")
         throw BackendError.invalidPassword
     }
