@@ -110,6 +110,12 @@ class LoginView: UIViewController {
         loginViewModel.$errorMessage
             .assign(to: \UILabel.text!, on: errorLabel)
             .store(in: &cancellables)
+        
+        loginViewModel.$userModel.sink{ [weak self] _ in
+            print("Succes, navigate to home view controller")
+            let homeView = HomeView()
+            self?.present(homeView, animated: true)
+        }.store(in: &cancellables)
 
     }
 }
