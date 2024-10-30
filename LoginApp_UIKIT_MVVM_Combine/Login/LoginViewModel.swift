@@ -15,6 +15,7 @@ class LoginViewModel {
     @Published var isEnabled: Bool = false
     @Published var showLoading: Bool = false
     @Published var errorMessage: String = ""
+    @Published var userModel: User?
     
     var cancellables = Set<AnyCancellable>()
     
@@ -43,7 +44,7 @@ class LoginViewModel {
         
         Task {
             do {
-                let userModel = try await apiClient.login(withEmail: email, password: password)
+                userModel = try await apiClient.login(withEmail: email, password: password)
             } catch let error as BackendError {
                 errorMessage = error.rawValue
             }
